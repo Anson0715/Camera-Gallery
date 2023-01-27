@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- This file used to handle the exception:
+android.os.FileUriExposedException:
+file:///storage/emulated..exposed beyond app through Intent.getData()-->
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path name="my_images" path="/"/>
-
+    <!-- Obtain files from all external storage of the phone -->
 </paths>

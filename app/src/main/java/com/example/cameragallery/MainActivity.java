@@ -42,12 +42,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imageView = (ImageView) findViewById(R.id.imageView);
-
         btnTakePhoto = (Button) findViewById(R.id.btnTakePhoto);
+
+        // The parameter of setOnClickListener() method is an anonymous inner class.
+        // View.OnClickListener() is an Interface using a callback to be invoked when a view is clicked.
         btnTakePhoto.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Initialize the image name.
+                    // Initialize the File object, that used to store the photo.
                     File outputImage = new File(getExternalCacheDir(), "output_image.jpg");
                     try {
                         // There is a image stored in cache, that needs to be deleted.
@@ -59,16 +61,26 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    if(Build.VERSION.SDK_INT >= 24){
+                    // Use different methods to obtain the image URI based on the SDK version.
+                    if(Build.VERSION.SDK_INT >= 24){ // If the SDK Version is 24 or more.
                         imageUri = FileProvider.getUriForFile(MainActivity.this, "CameraGallery.fileprovider", outputImage);
                     }
                     else{
                         imageUri = Uri.fromFile(outputImage);
                     }
 
+                    // Initialize an intent object, that used to invoke the system build-in camera application.
+                    // Set the action as take a photo.
                     Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+                    // store the photo after taking to a certain URI.
+                    /*
+                        A Uri represents the data to be manipulated,
+                        and every resource available on Android - images, video clips, etc.
+                        - can be represented by a Uri. The Uri uniquely identifies each resource.
+                     */
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
 
+                    // start the camera application.
                     startActivityForResult(intent, TAKE_PHOTO);
                 }
             });
@@ -78,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent();
+
+                // set the intent type to get image files only.
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
 
@@ -86,13 +100,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Because "take a photo" and "select a photo" use the same startActivityForResult() method,
+    // then I use switch condition method to encrypt these two click events based on requestCode.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case TAKE_PHOTO:
+            case TAKE_PHOTO: // When user click Take a photo button.
                 if (resultCode == RESULT_OK) {
                     try {
+                        // Display the photo using bitmap.
                         Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
                         imageView.setImageBitmap(bitmap);
                     } catch (FileNotFoundException e) {
@@ -101,13 +118,14 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
 
-            case CHOOSE_PHOTO:
+            case CHOOSE_PHOTO: // When user click Select a photo button.
                 if (resultCode == RESULT_OK) {
 
                     if (data != null && data.getData() != null) {
                         Uri selectedImageUri = data.getData();
                         Bitmap selectedImageBitmap = null;
                         try {
+                            // Convert selected photo to bitmap format.
                             selectedImageBitmap = MediaStore.Images.Media.getBitmap(
                                     this.getContentResolver(),
                                     selectedImageUri);
@@ -115,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                         catch (IOException e) {
                             e.printStackTrace();
                         }
+                        // Display the selected photo.
                         imageView.setImageBitmap(selectedImageBitmap);
                     }
                 }
