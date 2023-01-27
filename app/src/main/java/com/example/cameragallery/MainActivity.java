@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         imageView.setImageBitmap(selectedImageBitmap);
                     }
                 }
+                break;
 
             default:
                 break;
